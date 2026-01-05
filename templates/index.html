@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Forecasting & Recommendation Dashboard</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #eef1f5;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            background: #0056b3;
+            padding: 20px;
+            color: white;
+            margin: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .section {
+            background: #fff;
+            margin: 25px auto;
+            width: 92%;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 17px rgba(0,0,0,0.12);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            grid-gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+        .exp-box {
+            background: #f7f9fc;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #bbb;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #0056b3;
+            color: white;
+        }
+        input, button {
+            padding: 10px;
+            width: 50%;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        button {
+            width: auto;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .list-box {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Reatail Sales Forecasting & Product Recommendation Dashboard</h1>
+
+<!-------------------------- FORECAST VISUALS ------------------------ -->
+<div class="section">
+    <h2>Forecast Visualizations</h2>
+    <div class="grid">
+
+        <div class="card">
+            <h3>Forecast Comparison (Line Chart)</h3>
+            <img src="{{ url_for('static', filename='forecast_line.png') }}">
+        </div>
+
+        <div class="card">
+            <h3>Actual vs Predicted (Bar Chart)</h3>
+            <img src="{{ url_for('static', filename='forecasting.png') }}">
+        </div>
+           <div class="card">
+            <h3>Linear Regression – Feature Importance</h3>
+            <img src="{{ url_for('static', filename='explain_LinearRegression_simple.png') }}">
+            {{ lr_explanation }}
+        </div>
+         <div class="card">
+            <h3>Top Trending Products</h3>
+            <img src="{{ url_for('static', filename='trending_products.png') }}">
+        </div>
+        <div class="card">
+            <h3>Model Performance Comparison</h3>
+            <img src="{{ url_for('static', filename='model_comparison.png') }}">
+        </div>
+        <div class="card">
+            <h3>Model Metrics (MAE, RMSE, MAPE): 30 days</h3>
+            {% if metrics %}
+            <table>
+                <tr><th>Model</th><th>MAE</th><th>RMSE</th><th>MAPE</th></tr>
+                {% for m, v in metrics.items() %}
+                <tr>
+                    <td>{{ m }}</td>
+                    <td>{{ "%.2f"|format(v['MAE']) }}</td>
+                    <td>{{ "%.2f"|format(v['RMSE']) }}</td>
+                    <td>{{ "%.2f"|format(v['MAPE']) }}%</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+       
+
+    </div>
+
+    
+</div>
+
+<!-- ------------------------ TRENDING PRODUCTS ------------------------ -->
+<div class="section">
+    <h3>Trending Product List</h3>
+    <div class="list-box">
+        <ul>
+            {% for t in trending %}
+            <li>{{ t }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- ------------------------ PRODUCT RECOMMENDATION ------------------------ -->
+<div class="section">
+    <h2>Product Recommendation Engine</h2>
+
+    <form method="POST">
+        <input type="text" name="customer" placeholder="Enter Customer Name or ID" required>
+        <br><br>
+        <button type="submit">Get Recommendations</button>
+    </form>
+
+    {% if combined_recs %}
+    <h3>Recommended Products for <span style="color:#0056b3;">{{ customer_name }}</span></h3>
+    <ul>
+        {% for r, e in combined_recs %}
+        <li><strong>{{ r }}</strong> — {{ e }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+
+</body>
+</html>
